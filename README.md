@@ -47,6 +47,8 @@ cd ~/Desktop
 git clone [URL]
 ```
 
+![git clone](/resources/git-clone.gif)
+
 ```bash
 brew install python
 brew install python3
@@ -61,6 +63,7 @@ https://atom.io
 
 
 ```bash
+cd ~/Desktop/whowashere
 virtualenv -p python3 venv
 ```
 
@@ -68,6 +71,14 @@ virtualenv -p python3 venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+This code does not work as is, however, since is not connected to any database.
+
+```python
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']`
+```
+We need to give the program a `DATABASE_URL` which we will get from Heroku PostgreSQL.
+
 
 # Heroku
 
@@ -85,6 +96,8 @@ heroku create
 ```
 
 # Procfile
+
+This has been provided for you in the `whowashere` repository, but you will have to do this on your own.
 
 ```bash
 pip install gunicorn
@@ -110,6 +123,8 @@ from cs50 import SQL
 db = SQL("sqlite:///finance.db")
 ```
 
+Our database name will be `user` corresponding to the name of the class and our column names will be `id` and `name` of types `Integer` and `String` respectively.
+
 ```python
 import os
 from flask_sqlalchemy import SQLAlchemy
@@ -127,7 +142,7 @@ class User(db.Model):
     def __init__(self, name):
         self.name = name
 ```
-
+We switch out `db.execute` statements from the [CS50 Python Library](https://github.com/cs50/python-cs50/blob/develop/src/cs50/sql.py) for `db.session.add()` followed by `db.session.commit()`.
 ```python
 db.execute("INSERT INTO user (name) VALUES (:name)", name=name)
 
@@ -135,46 +150,60 @@ new_user = User(name)
 db.session.add(new_user)
 db.session.commit()
 ```
+We can implement a `SELECT` statement by using `query` following the class name.
 
 ```python
 users = User.query.order_by(User.id).all()
 ```
+Once we have switched to Flask-SQLAlchemy, all we need to do now is create our database.
 
 # Create PostgreSQL Database
 ```bash
 heroku addons:create heroku-postgresql:hobby-dev
 heroku config
 ```
+The `config` command will output the `DATABASE_URL` environment variable. For local testing, copy this `DATABASE_URL` and then type `touch .env`.
 
 ```bash
-touch .env
-
 export FLASK_APP=application.py
 export FLASK_DEBUG=1
 
 export DATABASE_URL=[DATABASE_URL]
 ```
 
+Now that we have generated a DATABASE_URL from Heroku, let's use a PostgreSQL GUI to take a look at our database.
+
 # Postico
+Download
 https://eggerapps.at/postico/
 
-Postico, with url copied, click "New Favorite"
+Postico, with `DATABASE_URL` copied, click "New Favorite". The fields should be populated automatically. Click connect.
 
+Time to create our table.
 
 ```
 git push heroku master
 ```
 
+Open up a python REPL in Heroku
 ```
 heroku run python
 from application import db
 db.create_all()
 exit()
 ```
+Press refresh in the upper right hand corner
 
+![postico refresh](/resources/postico-refresh.gif)
+
+To run locally,
 ```
+cd ~/Desktop/whowaswhere
+source .env
 flask run
 ```
+To see our flask app on the web, run
 ```
 heroku open
 ```
+![update rows](/resources/update-rows.gif)
