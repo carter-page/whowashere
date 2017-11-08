@@ -1,6 +1,12 @@
 {% extends "layout.html" %}
 
+<ul>
 {% block main %}
+{% for user in users %}
+<li>{{ user.name }}</li>
+{% endfor %}
+</ul>
+
 <form action="/sign">
     <input type="submit" value="Add your name" />
 </form>

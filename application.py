@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -12,29 +12,29 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
-    message = db.Column(db.String(120), nullable=False)
 
-    def __init__(self, name, message):
+    def __init__(self, name):
         self.name = name
-        self.message = message
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    users = User.query.order_by(User.id).all()
+    return render_template('index.html', users=users)
 
 @app.route('/sign', methods=["GET", "POST"])
 def sign():
     if request.method == "POST":
         name = request.form.get('name')
-        message = request.form.get('message')
 
-        new_user = User(name, message)
+        if name == "" or name.isspace():
+            return "Name cannot be empty!"
 
-        try:
-            db.session.add(new_user)
-        except:
-            return render_template('error.html')
+        new_user = User(name)
 
+        if User.query.filter(User.name == name).first() != None:
+             return name + " has already been here!"
+
+        db.session.add(new_user)
         db.session.commit()
 
         return redirect(url_for('index'))
