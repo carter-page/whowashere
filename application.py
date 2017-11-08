@@ -9,7 +9,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
-class Name(db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     message = db.Column(db.String(120), nullable=False)
@@ -28,11 +28,11 @@ def sign():
         name = request.form.get('name')
         message = request.form.get('message')
 
-        new_name = Name(name, message)
+        new_user = User(name, message)
 
         try:
-            db.session.add(new_name)
-        except ValueError:
+            db.session.add(new_user)
+        except:
             return render_template('error.html')
 
         db.session.commit()
