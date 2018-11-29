@@ -103,7 +103,7 @@ brew install python3
 Keeping track of all the dependencies of our specific flask app is quite a lot of work. To make that easier we are going to use virtual environments.
 
 ```bash
-brew install virtualenv
+pip3 install virtualenv
 ```
 
 ### Atom
